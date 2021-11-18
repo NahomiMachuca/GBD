@@ -5,8 +5,8 @@ nombre del departamento, en otra columna el total de empleados que había ese a�
 SELECT
 EXTRACT (YEAR FROM FECHA_INICIO) AS AÑO, AREA_DEPARTAMENTO as NOMBRE_DEPARTAMENTO,
 TOTAL_EMPLEADO
-FROM AREA_DEPARTAMENTO
-ORDER BY FECHA_INICIO ASC
+FROM AREA_DEPARTAMENTO 
+where EXTRACT (YEAR FROM FECHA_INICIO) = '2019'
 
 /*Consultar histórico de jefes por departamento. En una columna aparecerá el nombre del departamento, 
 en otra columna el número de jefes que ha tenido hasta el momento ese departamento.
@@ -34,6 +34,8 @@ En una columna aparecerá el año, en otra columna la dirección, en otra column
 */
 
 SELECT
-EXTRACT (YEAR FROM FECHA_PERMISO) AS año, direccion_empleado, TIPO_PERMISO,CANT_PERMISO
-from permiso inner join empleado on permiso.id_empleado=empleado.id_empleado
+EXTRACT (YEAR FROM FECHA_PERMISO) AS año,area_departamento, TIPO_PERMISO,CANT_PERMISO
+from permiso 
+inner join empleado on permiso.id_empleado=empleado.id_empleado
+inner join area_departamento on empleado.id_area=area_departamento.id_area
 ORDER BY FECHA_PERMISO ASC
