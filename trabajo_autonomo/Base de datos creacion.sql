@@ -1,24 +1,22 @@
 /*==============================================================*/
 /* DBMS name:      PostgreSQL 8                                 */
-/* Created on:     12/11/2021 23:55:40                          */
+/* Created on:     18/11/2021 22:33:13                          */
 /*==============================================================*/
 
 
-drop index EXISTEN_FK;
+drop index MANIFIESTA_FK;
 
 drop index ACCIDENTE_LABORAL_PK;
 
 drop table ACCIDENTE_LABORAL;
 
-drop index ADMINISTRADOR_PK;
-
-drop table ADMINISTRADOR;
+drop index DIRIGE_FK;
 
 drop index AREA_DEPARTAMENTO_PK;
 
 drop table AREA_DEPARTAMENTO;
 
-drop index HAY__FK;
+drop index POSEE_FK;
 
 drop index CALAMIDAD__DOMESTICA_PK;
 
@@ -27,8 +25,6 @@ drop table CALAMIDAD__DOMESTICA;
 drop index CONTRATO_PK;
 
 drop table CONTRATO;
-
-drop index DIRIGE_FK;
 
 drop index FIRMA_FK;
 
@@ -43,6 +39,16 @@ drop index TIENE_FK;
 drop index HORARIO_PK;
 
 drop table HORARIO;
+
+drop index HAY_FK;
+
+drop index HORA_EXTRA_PK;
+
+drop table HORA_EXTRA;
+
+drop index JEFE_PK;
+
+drop table JEFE;
 
 drop index SOLICITA_FK;
 
@@ -70,6 +76,7 @@ create table ACCIDENTE_LABORAL (
    ID_EMPLEADO          INT4                 not null,
    DESCRIPCION_ACCIDENTE VARCHAR(100)         not null,
    FECHA_ACCIDENTE      DATE                 not null,
+   CANT_ACCIDENTE       VARCHAR(10)          not null,
    constraint PK_ACCIDENTE_LABORAL primary key (ID_ACCIDENTE)
 );
 
@@ -81,32 +88,10 @@ ID_ACCIDENTE
 );
 
 /*==============================================================*/
-/* Index: OCURRE_FK                                             */
+/* Index: MANIFIESTA_FK                                         */
 /*==============================================================*/
-create  index OCURRE_FK on ACCIDENTE_LABORAL (
+create  index MANIFIESTA_FK on ACCIDENTE_LABORAL (
 ID_EMPLEADO
-);
-
-/*==============================================================*/
-/* Table: ADMINISTRADOR                                         */
-/*==============================================================*/
-create table ADMINISTRADOR (
-   ID_ADMINI            INT4                 not null,
-   CEDULA_ADMI          VARCHAR(10)          not null,
-   NOMBRE_ADMINI        VARCHAR(50)          not null,
-   APELLIDOS_ADMI       VARCHAR(50)          not null,
-   CELULAR_ADMI         VARCHAR(10)          not null,
-   DIRECCION_ADMI       VARCHAR(50)          not null,
-   CORREO_ADMI          VARCHAR(50)          not null,
-   GENERO_ADMI          VARCHAR(10)          not null,
-   constraint PK_ADMINISTRADOR primary key (ID_ADMINI)
-);
-
-/*==============================================================*/
-/* Index: ADMINISTRADOR_PK                                      */
-/*==============================================================*/
-create unique index ADMINISTRADOR_PK on ADMINISTRADOR (
-ID_ADMINI
 );
 
 /*==============================================================*/
@@ -115,9 +100,10 @@ ID_ADMINI
 create table AREA_DEPARTAMENTO (
    ID_AREA              INT4                 not null,
    ID_JEFE              INT4                 not null,
-   AREA_DEPARTAMENTO    VARCHAR(50)          not null,
+   AREA                 VARCHAR(50)          not null,
    FECHA_INICIO         DATE                 not null,
    TOTAL_EMPLEADO       INT4                 not null,
+   TOTAL_JEFE           INT4                 not null,
    constraint PK_AREA_DEPARTAMENTO primary key (ID_AREA)
 );
 
@@ -129,9 +115,9 @@ ID_AREA
 );
 
 /*==============================================================*/
-/* Index: RELATIONSHIP_10_FK                                    */
+/* Index: DIRIGE_FK                                             */
 /*==============================================================*/
-create  index RELATIONSHIP_10_FK on AREA_DEPARTAMENTO (
+create  index DIRIGE_FK on AREA_DEPARTAMENTO (
 ID_JEFE
 );
 
@@ -143,6 +129,7 @@ create table CALAMIDAD__DOMESTICA (
    ID_EMPLEADO          INT4                 not null,
    FECHA_CALAMIDAD      DATE                 not null,
    DESCRIPCION_CALAMIDAD VARCHAR(100)         not null,
+   CANT_CALAMIDAD        VARCHAR(10)          not null,
    constraint PK_CALAMIDAD__DOMESTICA primary key (ID_CALAMIDAD)
 );
 
@@ -154,9 +141,9 @@ ID_CALAMIDAD
 );
 
 /*==============================================================*/
-/* Index: MANIFIESTA_FK                                         */
+/* Index: POSEE_FK                                              */
 /*==============================================================*/
-create  index MANIFIESTA_FK on CALAMIDAD__DOMESTICA (
+create  index POSEE_FK on CALAMIDAD__DOMESTICA (
 ID_EMPLEADO
 );
 
@@ -186,14 +173,13 @@ create table EMPLEADO (
    ID_EMPLEADO          INT4                 not null,
    ID_AREA              INT4                 not null,
    ID_CONTRATO          INT4                 not null,
-   ID_ADMINI            INT4                 not null,
    NOMBRE_EMPLEADO      VARCHAR(50)          not null,
-   APELLIDOS_EMPLEADO   VARCHAR(50)          not null,
+   APELLIDO_EMPLEADO   VARCHAR(50)          not null,
    TELEFONO_EMPLEADO    VARCHAR(10)          not null,
    PROVINCIA_EMPLEADO   VARCHAR(50)          not null,
    DIRECCION_EMPLEADO   CHAR(50)             not null,
    EMAIL_EMPLEADO       CHAR(50)             not null,
-   GENERO_EMPLEADO      CHAR(10)             not null,
+   CEDULA_EMPLEADO      CHAR(10)             not null,
    constraint PK_EMPLEADO primary key (ID_EMPLEADO)
 );
 
@@ -219,13 +205,6 @@ ID_CONTRATO
 );
 
 /*==============================================================*/
-/* Index: DIRIGE_FK                                             */
-/*==============================================================*/
-create  index DIRIGE_FK on EMPLEADO (
-ID_ADMINI
-);
-
-/*==============================================================*/
 /* Table: HORARIO                                               */
 /*==============================================================*/
 create table HORARIO (
@@ -233,7 +212,6 @@ create table HORARIO (
    ID_AREA              INT4                 not null,
    HORA_ENTRADA         TIME                 not null,
    HORA_SALIDA          TIME                 not null,
-   HORA_EXTRA           TIME                 not null,
    constraint PK_HORARIO primary key (ID_HORARIO)
 );
 
@@ -252,13 +230,40 @@ ID_AREA
 );
 
 /*==============================================================*/
+/* Table: HORA_EXTRA                                            */
+/*==============================================================*/
+create table HORA_EXTRA (
+   ID_HORAE             INT4                 not null,
+   ID_HORARIO           INT4                 not null,
+   TIEMPO_HORAE         TIME                 not null,
+   CANT_HORAE           INT4                 not null,
+   constraint PK_HORA_EXTRA primary key (ID_HORAE)
+);
+
+/*==============================================================*/
+/* Index: HORA_EXTRA_PK                                         */
+/*==============================================================*/
+create unique index HORA_EXTRA_PK on HORA_EXTRA (
+ID_HORAE
+);
+
+/*==============================================================*/
+/* Index: HAY_FK                                                */
+/*==============================================================*/
+create  index HAY_FK on HORA_EXTRA (
+ID_HORARIO
+);
+
+/*==============================================================*/
 /* Table: JEFE                                                  */
 /*==============================================================*/
 create table JEFE (
    ID_JEFE              INT4                 not null,
    NOMBRE_JEFE          VARCHAR(50)          not null,
    APELLIDO_JEFE        VARCHAR(50)          not null,
-   TOTAL_JEFE           INT4                 not null,
+   CEDULA_JEFE          VARCHAR(10)          not null,
+   CELULAR_JEFE         VARCHAR(10)          not null,
+   CORREO_JEFE          VARCHAR(50)          not null,
    constraint PK_JEFE primary key (ID_JEFE)
 );
 
@@ -277,8 +282,7 @@ create table PERMISO (
    ID_EMPLEADO          INT4                 not null,
    TIPO_PERMISO         VARCHAR(50)          not null,
    FECHA_PERMISO        DATE                 not null,
-   CANT_PERMISO 		INT4 				 not null,
-   DURACION_PERMISO 	INT4  				 not null,
+   DURACION_PERMISO     INT4                 null,
    constraint PK_PERMISO primary key (ID_PERMISO)
 );
 
@@ -327,18 +331,19 @@ ID_EMPLEADO
 /* Table: VACACION                                              */
 /*==============================================================*/
 create table VACACION (
-   ID_VACACIONE         INT4                 not null,
+   ID_VACACION          INT4                 not null,
    ID_CONTRATO          INT4                 not null,
    FECHA_INICIO         DATE                 not null,
    FECHA_FIN            DATE                 not null,
-   constraint PK_VACACION primary key (ID_VACACIONE)
+   DURACION             VARCHAR(10)          not null,
+   constraint PK_VACACION primary key (ID_VACACION)
 );
 
 /*==============================================================*/
 /* Index: VACACION_PK                                           */
 /*==============================================================*/
 create unique index VACACION_PK on VACACION (
-ID_VACACIONE
+ID_VACACION
 );
 
 /*==============================================================*/
@@ -349,23 +354,18 @@ ID_CONTRATO
 );
 
 alter table ACCIDENTE_LABORAL
-   add constraint FK_ACCIDENT_OCURRE_EMPLEADO foreign key (ID_EMPLEADO)
+   add constraint FK_ACCIDENT_MANIFIEST_EMPLEADO foreign key (ID_EMPLEADO)
       references EMPLEADO (ID_EMPLEADO)
       on delete restrict on update restrict;
 
 alter table AREA_DEPARTAMENTO
-   add constraint FK_AREA_DEP_RELATIONS_JEFE foreign key (ID_JEFE)
+   add constraint FK_AREA_DEP_DIRIGE_JEFE foreign key (ID_JEFE)
       references JEFE (ID_JEFE)
       on delete restrict on update restrict;
 
 alter table CALAMIDAD__DOMESTICA
-   add constraint FK_CALAMIDA_MANIFIEST_EMPLEADO foreign key (ID_EMPLEADO)
+   add constraint FK_CALAMIDA_POSEE_EMPLEADO foreign key (ID_EMPLEADO)
       references EMPLEADO (ID_EMPLEADO)
-      on delete restrict on update restrict;
-
-alter table EMPLEADO
-   add constraint FK_EMPLEADO_DIRIGE_ADMINIST foreign key (ID_ADMINI)
-      references ADMINISTRADOR (ID_ADMINI)
       on delete restrict on update restrict;
 
 alter table EMPLEADO
@@ -381,6 +381,11 @@ alter table EMPLEADO
 alter table HORARIO
    add constraint FK_HORARIO_TIENE_AREA_DEP foreign key (ID_AREA)
       references AREA_DEPARTAMENTO (ID_AREA)
+      on delete restrict on update restrict;
+
+alter table HORA_EXTRA
+   add constraint FK_HORA_EXT_HAY_HORARIO foreign key (ID_HORARIO)
+      references HORARIO (ID_HORARIO)
       on delete restrict on update restrict;
 
 alter table PERMISO
