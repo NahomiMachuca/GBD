@@ -1,41 +1,57 @@
-/*Mostrar histórico de empleados por departamento anual. En una columna aparecerá el año, en otra columna el 
-nombre del departamento, en otra columna el total de empleados que había ese año. 
-*/
-
-SELECT
-EXTRACT (YEAR FROM FECHA_INICIO) AS AÑO, AREA_DEPARTAMENTO as NOMBRE_DEPARTAMENTO,
-TOTAL_EMPLEADO
-FROM AREA_DEPARTAMENTO 
-where EXTRACT (YEAR FROM FECHA_INICIO) = '2019'
-
-/*Consultar histórico de jefes por departamento. En una columna aparecerá el nombre del departamento, 
-en otra columna el número de jefes que ha tenido hasta el momento ese departamento.
+----------------------------------------------------------
+-------------------------CONSULTAS------------------------
+--1---
+/*Mostrar histórico de accidentes laborales por departamento anual.
+En una columna aparecerá el año, en otra columna el nombre del departamento, 
+en otra columna la descripción del accidente y en otra columna el total de 
+accidentes que hubo en ese año. 
 */
 SELECT
-AREA_DEPARTAMENTO, TOTAL_JEFE
-FROM JEFE
-INNER JOIN AREA_DEPARTAMENTO ON JEFE.ID_JEFE=AREA_DEPARTAMENTO.ID_JEFE
+EXTRACT (YEAR FROM FECHA_ACCIDENTE) AS AÑO,AREA,DESCRIPCION_ACCIDENTE,
+CANT_ACCIDENTE AS TOTAL_ACCIDENTE
+FROM ACCIDENTE_LABORAL
+INNER JOIN EMPLEADO ON ACCIDENTE_LABORAL.ID_EMPLEADO=EMPLEADO.ID_EMPLEADO
+INNER JOIN AREA_DEPARTAMENTO ON EMPLEADO.ID_AREA=AREA_DEPARTAMENTO.ID_AREA
+ORDER BY FECHA_ACCIDENTE DESC
 
-
-/*Mostrar histórico de atrasos por año en cada departamento. En una columna deberá aparecer el año,
- en otra columna el nombre del departamento, en otra columna el número de atrasos en ese año
-*/
-
-SELECT
-EXTRACT (YEAR FROM FECHA_RETRASO) AS AÑO_RETRASO, AREA_DEPARTAMENTO as Nombre_Departamento, 
-CANT_RETRASO as NUMERO_RETRASOS
-from EMPLEADO
-INNER JOIN RETRASO ON EMPLEADO.ID_EMPLEADO=RETRASO.ID_EMPLEADO
-INNER JOIN AREA_DEPARTAMENTO ON AREA_DEPARTAMENTO.ID_AREA=EMPLEADO.ID_AREA
-ORDER BY FECHA_RETRASO ASC
-
-/*Mostrar histórico de tipos de permiso (maternidad, enfermedad, viáticos, etc) por año.
-En una columna aparecerá el año, en otra columna la dirección, en otra columna el número de permisos de ese tipo en ese año
-*/
+--2---
+/*Mostrar histórico de empleados que han trabajado horas extra. 
+En una columna aparecerá el nombre del empleado, en otra columna el departamento 
+al que pertenece,y en otra la cantidad de veces que ha laborado horas extras.*/
 
 SELECT
-EXTRACT (YEAR FROM FECHA_PERMISO) AS año,area_departamento, TIPO_PERMISO,CANT_PERMISO
-from permiso 
-inner join empleado on permiso.id_empleado=empleado.id_empleado
-inner join area_departamento on empleado.id_area=area_departamento.id_area
+(NOMBRE_EMPLEADO || ' ' || APELLIDO_EMPLEADO) AS NOMBRE, AREA AS DEPARTAMENTO,
+CANT_HORAE 
+FROM EMPLEADO
+INNER JOIN AREA_DEPARTAMENTO ON EMPLEADO.ID_AREA=AREA_DEPARTAMENTO.ID_AREA
+INNER JOIN HORARIO ON AREA_DEPARTAMENTO.ID_AREA=HORARIO.ID_AREA
+INNER JOIN HORA_EXTRA ON HORARIO.ID_HORARIO=HORA_EXTRA.ID_HORARIO
+ORDER BY CANT_HORAE DESC
+
+--3--
+/*Mostrar histórico de tipos de permiso (maternidad, enfermedad, viáticos, etc) 
+por año. En una columna aparecerá el año, en otra columna el departamento en el 
+que labora, en otra columna el número de permisos de ese tipo en ese año
+*/
+SELECT 
+EXTRACT (YEAR FROM FECHA_PERMISO) AS AÑO, AREA, TIPO_PERMISO, CANT_PERMISO
+FROM PERMISO
+INNER JOIN EMPLEADO ON PERMISO.ID_EMPLEADO= EMPLEADO.ID_EMPLEADO
+INNER JOIN AREA_DEPARTAMENTO ON EMPLEADO.ID_AREA=AREA_DEPARTAMENTO.ID_AREA 
 ORDER BY FECHA_PERMISO ASC
+
+--4--
+
+/*Mostrar histórico de empleados que más atrasos han tenido a lo largo del año. En
+una columna aparecerá el nombre del empleado, en otra columna el tipo de retraso, 
+en otra columna la observación que se le dio y en otra columna el total de retrasos
+que ha tenido.   
+*/
+
+SELECT 
+EXTRACT (YEAR FROM FECHA_RETRASO) AS AÑO, 
+(NOMBRE_EMPLEADO || ' ' || APELLIDO_EMPLEADO) AS NOMBRE, TIPO_RETRASO,
+OBSERVACION_,CANT_RETRASO AS TOTAL_RETRASO
+FROM RETRASO
+INNER JOIN EMPLEADO ON RETRASO.ID_EMPLEADO=EMPLEADO.ID_EMPLEADO
+ORDER BY CANT_RETRASO DESC
